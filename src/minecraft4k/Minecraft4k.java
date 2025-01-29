@@ -20,6 +20,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import static minecraft4k.Minecraft4k.*;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+
+public static void saveWorld(String filename) {
+    try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+        out.writeObject(world);
+        System.out.println("World saved successfully!");
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
 public class Minecraft4k
     extends JPanel
@@ -112,7 +123,33 @@ public class Minecraft4k
                     crosshair.setRGB(x, y, 0xFFFFFFFF);
             }
         }
-        
+        import java.io.*;
+
+        public static void saveWorld(String filename) {
+            try (DataOutputStream out = new DataOutputStream(new FileOutputStream(filename))) {
+                for (int x = 0; x < WORLD_SIZE; x++) {
+                    for (int y = 0; y < WORLD_HEIGHT; y++) {
+                        out.write(world[x][y]); // Save each column of blocks
+                    }
+                }
+                System.out.println("World saved successfully!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        public static void loadWorld(String filename) {
+            try (DataInputStream in = new DataInputStream(new FileInputStream(filename))) {
+                for (int x = 0; x < WORLD_SIZE; x++) {
+                    for (int y = 0; y < WORLD_HEIGHT; y++) {
+                        in.readFully(world[x][y]); // Load each column of blocks
+                    }
+                }
+                System.out.println("World loaded successfully!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         updateScreenResolution();
         
         frame.addMouseListener(new MinecraftEventListener());
@@ -593,7 +630,16 @@ public class Minecraft4k
                 {
                     System.out.println("DEBUG::BREAK");
                 }
-                
+                if (input.contains(KeyEvent.VK_O)) {  // Press 'O' to save
+                    saveWorld("world.dat");
+                    input.remove(KeyEvent.VK_O);
+                }
+
+                if (input.contains(KeyEvent.VK_L)) {  // Press 'L' to load
+                    loadWorld("world.dat");
+                    input.remove(KeyEvent.VK_L);
+                }
+
                 sinYaw = (float)Math.sin(cameraYaw);
                 cosYaw = (float)Math.cos(cameraYaw);
                 sinPitch = (float)Math.sin(cameraPitch);
